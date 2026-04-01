@@ -132,10 +132,17 @@ class VoteController extends BaseController {
      */
     public function afficherResultats(): void {
         $votes = $this->voteModel->getAllVotes();
-        $resultats = $this->calculerResultats($votes);
+        $resultatsData = $this->calculerResultats($votes);
+        $resultats = $resultatsData['resultats'];
+        $etatEgalite = $resultatsData['etatEgalite'];
+        
+        // Calculer le vainqueur global
+        $vainqueurGlobal = $this->calculerVainqueurGlobal($resultats);
 
         $this->app->render('resultats', [
             'resultats' => $resultats,
+            'etatEgalite' => $etatEgalite,
+            'vainqueurGlobal' => $vainqueurGlobal,
             'baseUrl' => $this->getBaseUrl(),
             'nonce' => $this->getNonce()
         ]);
@@ -188,19 +195,20 @@ class VoteController extends BaseController {
     }
 
     /**
-     * Calculer les résultats finaux
+     * Calculer les résultats finaux avec détection d'égalité
      */
     private function calculerResultats($votes): array {
         $etats = $this->etatModel->getAllEtats();
         $candidats = $this->candidatModel->getAllCandidats();
 
         $resultats = [];
+        $etatEgalite = [];
 
         foreach ($etats as $etat) {
             $etatId = $etat['id'];
-            $maxVoix = 0;
-            $candidatGagnant = null;
-
+            
+            // Créer un tableau des voix par candidat
+            $voixParCandidat = [];
             foreach ($candidats as $candidat) {
                 $voixCandidat = 0;
                 foreach ($votes as $vote) {
@@ -208,11 +216,35 @@ class VoteController extends BaseController {
                         $voixCandidat += $vote['nb_voix'];
                     }
                 }
+                $voixParCandidat[$candidat['id']] = [
+                    'nom' => $candidat['nom'],
+                    'voix' => $voixCandidat
+                ];
+            }
 
-                if ($voixCandidat > $maxVoix) {
-                    $maxVoix = $voixCandidat;
-                    $candidatGagnant = $candidat['nom'];
+            // Trouver le maximum de voix
+            $maxVoix = 0;
+            $candidatGagnant = null;
+            $countMaxVoix = 0; // Compter combien de candidats ont le max
+            $candidatsMax = []; // Garder les IDs des candidats avec max voix
+
+            foreach ($voixParCandidat as $candidatId => $data) {
+                if ($data['voix'] > $maxVoix) {
+                    $maxVoix = $data['voix'];
+                    $candidatGagnant = $data['nom'];
+                    $countMaxVoix = 1;
+                    $candidatsMax = [$candidatId];
+                } elseif ($data['voix'] == $maxVoix && $maxVoix > 0) {
+                    // Égalité avec le max actuel
+                    $countMaxVoix++;
+                    $candidatsMax[] = $candidatId;
                 }
+            }
+
+            // Détection d'égalité (50-50 ou plus de candidats à égalité)
+            if ($countMaxVoix > 1 && $maxVoix > 0) {
+                $etatEgalite[] = $etat['nom'];
+                $candidatGagnant = null; // Pas de gagnant en cas d'égalité
             }
 
             $resultats[] = [
@@ -223,7 +255,69 @@ class VoteController extends BaseController {
             ];
         }
 
-        return $resultats;
+        return [
+            'resultats' => $resultats,
+            'etatEgalite' => $etatEgalite
+        ];
+    }
+
+    /**
+     * Calculer le vainqueur global basé sur les grands électeurs
+     */
+    private function calculerVainqueurGlobal($resultats): ?array {
+        $grandsElecteursParCandidat = [];
+        $totalGrandsElecteurs = 0;
+
+        foreach ($resultats as $resultat) {
+            if ($resultat['candidatGagnant']) {
+                $candidat = $resultat['candidatGagnant'];
+                if (!isset($grandsElecteursParCandidat[$candidat])) {
+                    $grandsElecteursParCandidat[$candidat] = 0;
+                }
+                $grandsElecteursParCandidat[$candidat] += $resultat['nbGrandsElecteurs'];
+            }
+            $totalGrandsElecteurs += $resultat['nbGrandsElecteurs'];
+        }
+
+        if (empty($grandsElecteursParCandidat)) {
+            return null;
+        }
+
+        // Trouver le candidat avec le plus de grands électeurs
+        $vainqueur = null;
+        $maxGrandsElecteurs = 0;
+
+        foreach ($grandsElecteursParCandidat as $candidat => $nb) {
+            if ($nb > $maxGrandsElecteurs) {
+                $maxGrandsElecteurs = $nb;
+                $vainqueur = $candidat;
+            }
+        }
+
+        return [
+            'candidat' => $vainqueur,
+            'grandsElecteurs' => $maxGrandsElecteurs,
+            'totalGrandsElecteurs' => $totalGrandsElecteurs
+        ];
+    }
+
+    /**
+     * Exporter les résultats en PDF
+     */
+    public function exporterPDF(): void {
+        try {
+            // Inclure la classe d'export PDF alternative (plus robuste)
+            require __DIR__ . '/../../exportPDFAlternatif.php';
+            
+            // Créer une instance et générer le PDF (backslash = classe globale)
+            $exporteur = new \ExportPDFAlternatif($this->db);
+            $exporteur->genererPDF();
+        } catch (Exception $e) {
+            // En cas d'erreur, afficher un message d'erreur
+            http_response_code(500);
+            header('Content-Type: text/plain; charset=utf-8');
+            die('Erreur lors de l\'export PDF: ' . $e->getMessage());
+        }
     }
 
     /**

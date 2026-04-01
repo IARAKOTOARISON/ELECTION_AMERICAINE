@@ -48,6 +48,13 @@ $router->group('', function(Router $router) use ($app) {
 		$controller->afficherResultats();
 	});
 
+	// Exporter les résultats en PDF
+	$router->get('/vote/export-pdf', function() use ($app) {
+		$db = $app->db();
+		$controller = new VoteController($db, $app);
+		$controller->exporterPDF();
+	});
+
 	// API: Récupérer tous les votes (JSON)
 	$router->get('/api/votes', function() use ($app) {
 		$db = $app->db();

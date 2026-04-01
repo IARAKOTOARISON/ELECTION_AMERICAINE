@@ -3,7 +3,7 @@
     <div class="container-fluid">
         <a class="navbar-brand fw-bold fs-4" href="<?= htmlspecialchars($base) ?>/">
             <img src="<?= htmlspecialchars($base) ?>/assets/icons/LOGO.png" alt="Takalo Logo" class="icon-logo">
-             COLLECTE BNGRC
+              ELECTION AMERICAINE
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>

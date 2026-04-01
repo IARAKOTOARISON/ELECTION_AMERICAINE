@@ -92,7 +92,7 @@
                             <?php foreach ($candidats as $candidat): ?>
                                 <div class="col-md-6">
                                     <label for="candidat_<?= htmlspecialchars($candidat['id']) ?>" class="form-label">
-                                        Nombre de voix - <?= htmlspecialchars($candidat['nom']) ?>:
+                                        <?= htmlspecialchars($candidat['prenom']) ?> <?= htmlspecialchars($candidat['nom']) ?>:
                                     </label>
                                     <input type="number" 
                                            id="candidat_<?= htmlspecialchars($candidat['id']) ?>" 
