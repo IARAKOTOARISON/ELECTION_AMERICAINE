@@ -42,28 +42,63 @@ class VoteController extends BaseController {
     }
 
     /**
-     * Ajouter un vote
+     * Ajouter les votes pour un État (multiple candidats)
      */
     public function ajouter(): void {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'idEtat' => $_POST['idEtat'] ?? null,
-                'idCandidat' => $_POST['idCandidat'] ?? null,
-                'nbVoix' => $_POST['nbVoix'] ?? 0
-            ];
+            $idEtat = $_POST['idEtat'] ?? null;
+            $votes = $_POST['votes'] ?? [];
 
-            if ($data['idEtat'] && $data['idCandidat'] && $data['nbVoix'] > 0) {
-                if ($this->voteModel->create($data)) {
-                    $_SESSION['success_message'] = 'Vote enregistré avec succès';
-                } else {
-                    $_SESSION['error_message'] = 'Erreur lors de l\'enregistrement du vote';
+            if (!$idEtat) {
+                $_SESSION['error_message'] = 'L\'État est obligatoire';
+                $this->app->redirect($this->getBaseUrl() . '/vote/saisie');
+                return;
+            }
+
+            $hasVotes = false;
+            foreach ($votes as $idCandidat => $nbVoix) {
+                if ($nbVoix > 0) {
+                    $hasVotes = true;
+                    $data = [
+                        'idEtat' => $idEtat,
+                        'idCandidat' => $idCandidat,
+                        'nbVoix' => $nbVoix
+                    ];
+
+                    // Vérifier si le vote existe déjà pour ce candidat dans cet État
+                    $existingVoteId = $this->checkExistingVote($idEtat, $idCandidat);
+                    
+                    if ($existingVoteId) {
+                        // Mettre à jour le vote existant
+                        $this->voteModel->update($existingVoteId, $data);
+                    } else {
+                        // Créer un nouveau vote
+                        $this->voteModel->create($data);
+                    }
                 }
+            }
+
+            if ($hasVotes) {
+                $_SESSION['success_message'] = 'Votes enregistrés avec succès';
             } else {
-                $_SESSION['error_message'] = 'Tous les champs sont obligatoires';
+                $_SESSION['error_message'] = 'Aucun vote n\'a été enregistré';
             }
         }
         
         $this->app->redirect($this->getBaseUrl() . '/vote/saisie');
+    }
+
+    /**
+     * Vérifier si un vote existe déjà pour un candidat dans un État
+     */
+    private function checkExistingVote($idEtat, $idCandidat): ?int {
+        $votes = $this->voteModel->getAllVotes();
+        foreach ($votes as $vote) {
+            if ($vote['idEtat'] == $idEtat && $vote['idCandidat'] == $idCandidat) {
+                return $vote['id'];
+            }
+        }
+        return null;
     }
 
     /**

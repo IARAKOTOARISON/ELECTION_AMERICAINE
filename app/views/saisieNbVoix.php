@@ -88,25 +88,26 @@
                     </select>
                 </div>
 
-                <!-- Sélection du Candidat (boutons radios) -->
+                        <!-- Saisie du nombre de voix par candidat -->
                 <div class="mb-4">
-                    <label class="form-label">Sélectionner un candidat (une seule sélection):</label>
-                    <div class="radio-group">
+                    <label class="form-label">Nombre de personnes ayant voté par candidat:</label>
+                    <div class="row g-3">
                         <?php if (!empty($candidats)): ?>
                             <?php foreach ($candidats as $candidat): ?>
-                                <label>
-                                    <input type="radio" name="idCandidat" value="<?= htmlspecialchars($candidat['id']) ?>" required>
-                                    <?= htmlspecialchars($candidat['nom']) ?>
-                                </label>
+                                <div class="col-md-6">
+                                    <label for="candidat_<?= htmlspecialchars($candidat['id']) ?>" class="form-label">
+                                        Nombre de voix - <?= htmlspecialchars($candidat['nom']) ?>:
+                                    </label>
+                                    <input type="number" 
+                                           id="candidat_<?= htmlspecialchars($candidat['id']) ?>" 
+                                           name="votes[<?= htmlspecialchars($candidat['id']) ?>]" 
+                                           class="form-control" 
+                                           min="0" 
+                                           value="0">
+                                </div>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
-                </div>
-
-                <!-- Saisie du nombre de voix -->
-                <div class="mb-4">
-                    <label for="nbVoix" class="form-label">Nombre de voix:</label>
-                    <input type="number" id="nbVoix" name="nbVoix" class="form-control" min="0" required>
                 </div>
 
                 <!-- Bouton valider -->
@@ -160,9 +161,18 @@
     <script src="<?= htmlspecialchars($base) ?>/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script nonce="<?= htmlspecialchars($nonce) ?>">
         document.getElementById('voteForm').addEventListener('submit', function(e) {
-            if (!document.getElementById('nbVoix').value) {
+            const inputs = document.querySelectorAll('input[name^="votes["]');
+            let hasVotes = false;
+            
+            inputs.forEach(input => {
+                if (parseInt(input.value) > 0) {
+                    hasVotes = true;
+                }
+            });
+            
+            if (!hasVotes) {
                 e.preventDefault();
-                alert('Veuillez entrer un nombre de voix valide');
+                alert('Veuillez entrer au moins un nombre de voix pour un candidat');
             }
         });
     </script>
