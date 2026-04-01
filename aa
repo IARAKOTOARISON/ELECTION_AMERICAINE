@@ -1,0 +1,29 @@
+parlons de conditions 
+
+1-toujours par date d'anciennete dans les premiere distribution que ca soit pour don ou pour besoin 
+2- lorsque un don peut etre distribue a un besoin , comparer les quantite 
+             -si quantite dons superieru a quantite besoins , on fait la difference  , besoin devient vient de status id 
+
+
+
+
+
+172.16.7.131
+172.16.7.97
+172.16.7.108
+172.16.7.157
+
+
+95rwEbSe
+
+
+
+menu
+    <li class="nav-item mb-2">
+        <a class="nav-link text-white" href="<?= htmlspecialchars($base) ?>/simulation">
+            <img src="<?= htmlspecialchars($base) ?>/assets/icons/proposition.png" alt="simulation" class="icon-menu">
+            Simulation Dispatch
+        </a>
+    </li>
+
+

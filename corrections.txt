@@ -1,0 +1,103 @@
+=========================================================================
+                    CORRECTIONS EFFECTUÉES - PROJET BNGRC
+=========================================================================
+Date: 2025
+Contexte: Vérification et conformité avec le sujet d'examen PDF
+
+=========================================================================
+1. CORRECTION DE L'AFFICHAGE DES BESOINS EN MONTANT (Ariary)
+=========================================================================
+Problème identifié:
+- La page récapitulatif affichait le NOMBRE de besoins (total, satisfaits, restants)
+- Le sujet demande d'afficher les MONTANTS EN ARIARY des besoins
+
+Exigence du sujet:
+> "les besoins totaux et satisfaits EN MONTANT et le montant des besoins restants"
+
+Fichiers modifiés:
+
+a) app/models/StatistiquesService.php (méthode getStatistiquesBesoins)
+   - Ajout du calcul du montant des besoins satisfaits (montant_satisfaits)
+   - Ajout du calcul du montant des besoins restants (montant_restants)
+   - Ajout du pourcentage basé sur les montants (pourcentage_montant)
+   
+   Nouvelles requêtes SQL:
+   - MONTANT SATISFAITS: SUM(b.quantite * p.prixUnitaire) WHERE idStatusBesoin = 2
+   - MONTANT RESTANTS: SUM(b.quantite * p.prixUnitaire) WHERE idStatusBesoin = 1
+
+b) app/views/recap.php
+   - Modification des indicateurs pour afficher les MONTANTS en Ariary
+   - Avant: "Besoins Totaux: 15" (nombre)
+   - Après: "Montant Total Besoins: 1 500 000 Ariary (15 besoins)"
+   
+   Changements d'IDs:
+   - besoinsTotaux → besoinsMontantTotal
+   - besoinsSatisfaits → besoinsMontantSatisfaits
+   - besoinsRestants → besoinsMontantRestants
+
+c) public/assets/js/recap.js (fonction mettreAJourIndicateurs)
+   - Mise à jour des IDs pour correspondre aux nouveaux éléments
+   - Utilisation de formatMontant() pour afficher les valeurs en Ariary
+   - Barre de progression basée sur pourcentage_montant
+
+=========================================================================
+2. CORRECTION DU MESSAGE D'ERREUR POUR LES ACHATS
+=========================================================================
+Problème identifié:
+- Pas de vérification si un don en nature du même produit existe encore
+- Le système permettait d'acheter même si des dons en nature étaient disponibles
+
+Exigence du sujet:
+> "Il y a un message d'erreur si l'achat existe encore dans les dons restants"
+
+Fichiers modifiés:
+
+a) app/models/Besoin.php (méthode verifierBesoin)
+   - Ajout de la vérification des dons en nature disponibles
+   - Nouvelle requête SQL pour vérifier si un don du même produit existe
+   - Nouveau champ retourné: don_nature_disponible (boolean)
+   - Nouveau champ retourné: message_erreur (string explicite)
+   
+   Message d'erreur généré:
+   "Un don en nature du même produit (Riz) est encore disponible 
+   (50 unités). Utilisez d'abord les dons en nature avant de faire un achat."
+
+b) app/models/Besoin.php (méthode acheterBesoin)
+   - Ajout de la vérification don_nature_disponible avant l'achat
+   - Blocage de l'achat si des dons en nature sont encore disponibles
+   - Retour du message d'erreur explicite à l'utilisateur
+
+=========================================================================
+RÉSUMÉ DES CONFORMITÉS AU SUJET
+=========================================================================
+✓ Tableau de bord: villes avec besoins et dons attribués
+✓ Saisie des besoins par ville
+✓ Saisie des dons (nature et argent)
+✓ Simulation du dispatch par ordre de date de saisie
+✓ Achats via dons argent avec frais x% configurable
+✓ Message d'erreur si l'achat existe encore dans les dons restants [CORRIGÉ]
+✓ Page simulation avec bouton SIMULER et bouton VALIDER
+✓ Page récap avec besoins totaux/satisfaits EN MONTANT [CORRIGÉ]
+✓ Montant des besoins restants affiché en Ariary [CORRIGÉ]
+✓ Barres de progression CSS
+✓ Bouton ACTUALISER (AJAX)
+✓ Loader/Spinner pendant le chargement
+
+=========================================================================
+FICHIERS CONCERNÉS PAR LES CORRECTIONS
+=========================================================================
+1. app/models/StatistiquesService.php
+2. app/models/Besoin.php
+3. app/views/recap.php
+4. public/assets/js/recap.js
+
+=========================================================================
+TESTS RECOMMANDÉS
+=========================================================================
+1. Accéder à /recap et vérifier que les montants s'affichent en Ariary
+2. Cliquer sur ACTUALISER et vérifier que les valeurs se mettent à jour
+3. Tenter d'acheter un besoin dont le produit a un don en nature disponible
+   → Doit afficher le message d'erreur
+4. Vérifier que les barres de progression reflètent les pourcentages corrects
+
+=========================================================================
