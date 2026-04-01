@@ -46,27 +46,27 @@ class VoteController extends BaseController {
      */
     public function ajouter(): void {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $idEtat = $_POST['idEtat'] ?? null;
+            $id_etat = $_POST['id_etat'] ?? null;
             $votes = $_POST['votes'] ?? [];
 
-            if (!$idEtat) {
+            if (!$id_etat) {
                 $_SESSION['error_message'] = 'L\'État est obligatoire';
                 $this->app->redirect($this->getBaseUrl() . '/vote/saisie');
                 return;
             }
 
             $hasVotes = false;
-            foreach ($votes as $idCandidat => $nbVoix) {
-                if ($nbVoix > 0) {
+            foreach ($votes as $id_candidat => $nb_voix) {
+                if ($nb_voix > 0) {
                     $hasVotes = true;
                     $data = [
-                        'idEtat' => $idEtat,
-                        'idCandidat' => $idCandidat,
-                        'nbVoix' => $nbVoix
+                        'id_etat' => $id_etat,
+                        'id_candidat' => $id_candidat,
+                        'nb_voix' => $nb_voix
                     ];
 
                     // Vérifier si le vote existe déjà pour ce candidat dans cet État
-                    $existingVoteId = $this->checkExistingVote($idEtat, $idCandidat);
+                    $existingVoteId = $this->checkExistingVote($id_etat, $id_candidat);
                     
                     if ($existingVoteId) {
                         // Mettre à jour le vote existant
@@ -91,10 +91,10 @@ class VoteController extends BaseController {
     /**
      * Vérifier si un vote existe déjà pour un candidat dans un État
      */
-    private function checkExistingVote($idEtat, $idCandidat): ?int {
+    private function checkExistingVote($id_etat, $id_candidat): ?int {
         $votes = $this->voteModel->getAllVotes();
         foreach ($votes as $vote) {
-            if ($vote['idEtat'] == $idEtat && $vote['idCandidat'] == $idCandidat) {
+            if ($vote['id_etat'] == $id_etat && $vote['id_candidat'] == $id_candidat) {
                 return $vote['id'];
             }
         }
@@ -157,14 +157,14 @@ class VoteController extends BaseController {
 
             // Calculer le total des voix pour cet état
             foreach ($votes as $vote) {
-                if ($vote['idEtat'] == $etatId) {
-                    $totalVoixEtat += $vote['nbVoix'];
+                if ($vote['id_etat'] == $etatId) {
+                    $totalVoixEtat += $vote['nb_voix'];
                 }
             }
 
             $ligne = [
                 'nomEtat' => $etat['nom'],
-                'nbGrandsElecteurs' => $etat['nbGrandsElecteurs'],
+                'nbGrandsElecteurs' => $etat['nb_grands_electeurs'],
                 'pourcentages' => []
             ];
 
@@ -172,8 +172,8 @@ class VoteController extends BaseController {
             foreach ($candidats as $candidat) {
                 $voixCandidat = 0;
                 foreach ($votes as $vote) {
-                    if ($vote['idEtat'] == $etatId && $vote['idCandidat'] == $candidat['id']) {
-                        $voixCandidat += $vote['nbVoix'];
+                    if ($vote['id_etat'] == $etatId && $vote['id_candidat'] == $candidat['id']) {
+                        $voixCandidat += $vote['nb_voix'];
                     }
                 }
 
@@ -204,8 +204,8 @@ class VoteController extends BaseController {
             foreach ($candidats as $candidat) {
                 $voixCandidat = 0;
                 foreach ($votes as $vote) {
-                    if ($vote['idEtat'] == $etatId && $vote['idCandidat'] == $candidat['id']) {
-                        $voixCandidat += $vote['nbVoix'];
+                    if ($vote['id_etat'] == $etatId && $vote['id_candidat'] == $candidat['id']) {
+                        $voixCandidat += $vote['nb_voix'];
                     }
                 }
 
@@ -217,7 +217,7 @@ class VoteController extends BaseController {
 
             $resultats[] = [
                 'nomEtat' => $etat['nom'],
-                'nbGrandsElecteurs' => $etat['nbGrandsElecteurs'],
+                'nbGrandsElecteurs' => $etat['nb_grands_electeurs'],
                 'candidatGagnant' => $candidatGagnant,
                 'voixGagnant' => $maxVoix
             ];

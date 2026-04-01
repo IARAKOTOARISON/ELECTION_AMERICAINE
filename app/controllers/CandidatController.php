@@ -12,9 +12,6 @@ class CandidatController extends BaseController {
         $this->candidatModel = new Candidat($db);
     }
 
-    /**
-     * Afficher la page des candidats
-     */
     public function afficherPage(): void {
         $candidats = $this->candidatModel->getAllCandidats();
 
@@ -25,9 +22,7 @@ class CandidatController extends BaseController {
         ]);
     }
 
-    /**
-     * Récupérer tous les candidats (JSON)
-     */
+  
     public function getAll(): void {
         $candidats = $this->candidatModel->getAllCandidats();
         header('Content-Type: application/json');
@@ -57,10 +52,11 @@ class CandidatController extends BaseController {
     public function creer(): void {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
-                'nom' => $_POST['nom'] ?? null
+                'nom' => $_POST['nom'] ?? null,
+                'prenom' => $_POST['prenom'] ?? null
             ];
 
-            if ($data['nom']) {
+            if ($data['nom'] && $data['prenom']) {
                 if ($this->candidatModel->create($data)) {
                     $_SESSION['success_message'] = 'Candidat créé avec succès';
                     $this->app->redirect($this->getBaseUrl() . '/candidat');
@@ -68,7 +64,7 @@ class CandidatController extends BaseController {
                     $_SESSION['error_message'] = 'Erreur lors de la création du candidat';
                 }
             } else {
-                $_SESSION['error_message'] = 'Le nom du candidat est obligatoire';
+                $_SESSION['error_message'] = 'Le nom et le prénom du candidat sont obligatoires';
             }
         }
     }
@@ -79,7 +75,8 @@ class CandidatController extends BaseController {
     public function modifier($id): void {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
-                'nom' => $_POST['nom'] ?? null
+                'nom' => $_POST['nom'] ?? null,
+                'prenom' => $_POST['prenom'] ?? null
             ];
 
             if ($this->candidatModel->update($id, $data)) {

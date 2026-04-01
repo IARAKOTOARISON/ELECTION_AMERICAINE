@@ -23,12 +23,12 @@ class Vote {
     }
 
     public function create($data) {
-        $query = "INSERT INTO votes (idEtat, idCandidat, nbVoix) VALUES (:idEtat, :idCandidat, :nbVoix)";
+        $query = "INSERT INTO votes (id_etat, id_candidat, nb_voix) VALUES (:id_etat, :id_candidat, :nb_voix)";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([
-            ':idEtat' => $data['idEtat'] ?? null,
-            ':idCandidat' => $data['idCandidat'] ?? null,
-            ':nbVoix' => $data['nbVoix'] ?? 0,
+            ':id_etat' => $data['id_etat'] ?? null,
+            ':id_candidat' => $data['id_candidat'] ?? null,
+            ':nb_voix' => $data['nb_voix'] ?? 0,
         ]);
     }
 

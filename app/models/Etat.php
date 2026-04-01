@@ -23,11 +23,11 @@ class Etat {
     }
 
     public function create($data) {
-        $query = "INSERT INTO etats (nom, nbGrandsElecteurs) VALUES (:nom, :nbGrandsElecteurs)";
+        $query = "INSERT INTO etats (nom, nb_grands_electeurs) VALUES (:nom, :nb_grands_electeurs)";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([
             ':nom' => $data['nom'] ?? null,
-            ':nbGrandsElecteurs' => $data['nbGrandsElecteurs'] ?? 0,
+            ':nb_grands_electeurs' => $data['nb_grands_electeurs'] ?? 0,
         ]);
     }
 

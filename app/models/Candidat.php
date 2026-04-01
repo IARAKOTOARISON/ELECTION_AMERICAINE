@@ -23,10 +23,11 @@ class Candidat {
     }
 
     public function create($data) {
-        $query = "INSERT INTO candidats (nom) VALUES (:nom)";
+        $query = "INSERT INTO candidats (nom, prenom) VALUES (:nom, :prenom)";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([
             ':nom' => $data['nom'] ?? null,
+            ':prenom' => $data['prenom'] ?? null,
         ]);
     }
 

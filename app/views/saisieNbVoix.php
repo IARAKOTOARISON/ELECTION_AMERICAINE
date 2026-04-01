@@ -49,12 +49,10 @@
     </style>
 </head>
 <body>
-    <?php include('../../includes/header.php'); ?>
-
-    <div class="container mt-5">
+        <?php include(__DIR__ . '/../../includes/header.php'); ?>
         <h1 class="mb-4">Saisie du Nombre de Voix</h1>
 
-        <!-- Messages de succès/erreur -->
+        
         <?php if (isset($success)): ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <?= htmlspecialchars($success) ?>
@@ -69,26 +67,24 @@
             </div>
         <?php endif; ?>
 
-        <!-- Formulaire de saisie -->
         <div class="form-section">
             <form id="voteForm" method="POST" action="<?= htmlspecialchars($base) ?>/vote/ajouter">
                 
-                <!-- Sélection de l'État -->
+               
                 <div class="mb-4">
                     <label for="etatSelect" class="form-label">Sélectionner un État:</label>
-                    <select id="etatSelect" name="idEtat" class="form-select" required>
+                    <select id="etatSelect" name="id_etat" class="form-select" required>
                         <option value="">-- Choisir un État --</option>
                         <?php if (!empty($etats)): ?>
                             <?php foreach ($etats as $etat): ?>
                                 <option value="<?= htmlspecialchars($etat['id']) ?>">
-                                    <?= htmlspecialchars($etat['nom']) ?> (<?= htmlspecialchars($etat['nbGrandsElecteurs']) ?> électeurs)
+                                    <?= htmlspecialchars($etat['nom']) ?> (<?= htmlspecialchars($etat['nb_grands_electeurs']) ?> électeurs)
                                 </option>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </select>
                 </div>
 
-                        <!-- Saisie du nombre de voix par candidat -->
                 <div class="mb-4">
                     <label class="form-label">Nombre de personnes ayant voté par candidat:</label>
                     <div class="row g-3">
@@ -151,12 +147,12 @@
 
             <!-- Lien vers les résultats -->
             <div class="mt-4">
-                <a href="<?= htmlspecialchars($base) ?>/resultats" class="btn btn-info">Voir les Résultats Complets</a>
+                <a href="<?= htmlspecialchars($base) ?>/vote/resultats" class="btn btn-info">Voir les Résultats Complets</a>
             </div>
         </div>
     </div>
 
-    <?php include('../../includes/footer.php'); ?>
+    <?php include(__DIR__ . '/../../includes/footer.php'); ?>
 
     <script src="<?= htmlspecialchars($base) ?>/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script nonce="<?= htmlspecialchars($nonce) ?>">

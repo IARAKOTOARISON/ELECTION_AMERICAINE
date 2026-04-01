@@ -58,10 +58,10 @@ class EtatController extends BaseController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
                 'nom' => $_POST['nom'] ?? null,
-                'nbGrandsElecteurs' => $_POST['nbGrandsElecteurs'] ?? 0
+                'nb_grands_electeurs' => $_POST['nb_grands_electeurs'] ?? 0
             ];
 
-            if ($data['nom'] && $data['nbGrandsElecteurs']) {
+            if ($data['nom'] && $data['nb_grands_electeurs']) {
                 if ($this->etatModel->create($data)) {
                     $_SESSION['success_message'] = 'État créé avec succès';
                     $this->app->redirect($this->getBaseUrl() . '/etat');
@@ -81,7 +81,7 @@ class EtatController extends BaseController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
                 'nom' => $_POST['nom'] ?? null,
-                'nbGrandsElecteurs' => $_POST['nbGrandsElecteurs'] ?? 0
+                'nb_grands_electeurs' => $_POST['nb_grands_electeurs'] ?? 0
             ];
 
             if ($this->etatModel->update($id, $data)) {
