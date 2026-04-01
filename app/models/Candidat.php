@@ -1,34 +1,32 @@
 <?php
 namespace app\models;
 
-class Produit {
+class Candidat {
     private $db;
 
     public function __construct(\PDO $db) {
         $this->db = $db;
     }
 
-    public function getAllProduits() {
-        $query = "SELECT * FROM produit";
+    public function getAllCandidats() {
+        $query = "SELECT * FROM candidats";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function getById($id) {
-        $query = "SELECT * FROM produit WHERE id = :id";
+        $query = "SELECT * FROM candidats WHERE id = :id";
         $stmt = $this->db->prepare($query);
         $stmt->execute([':id' => $id]);
         return $stmt->fetch(\PDO::FETCH_ASSOC) ?: null;
     }
 
     public function create($data) {
-        $query = "INSERT INTO produit (idCategorie, nom, prixUnitaire) VALUES (:idCategorie, :nom, :prixUnitaire)";
+        $query = "INSERT INTO candidats (nom) VALUES (:nom)";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([
-            ':idCategorie' => $data['idCategorie'] ?? null,
             ':nom' => $data['nom'] ?? null,
-            ':prixUnitaire' => $data['prixUnitaire'] ?? 0,
         ]);
     }
 
@@ -45,13 +43,13 @@ class Produit {
             return false;
         }
 
-        $query = "UPDATE produit SET " . implode(', ', $updates) . " WHERE id = :id";
+        $query = "UPDATE candidats SET " . implode(', ', $updates) . " WHERE id = :id";
         $stmt = $this->db->prepare($query);
         return $stmt->execute($params);
     }
 
     public function delete($id) {
-        $query = "DELETE FROM produit WHERE id = :id";
+        $query = "DELETE FROM candidats WHERE id = :id";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([':id' => $id]);
     }
